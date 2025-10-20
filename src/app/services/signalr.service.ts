@@ -6,15 +6,15 @@ import { BehaviorSubject } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class SignalrService {
+export class SignalRService {
   private hubConnection!: signalR.HubConnection;
   public deviceUpdates$ = new BehaviorSubject<any>(null);
-
+  private apiUrl:string = "https://localhost:44336/agentHub";
   constructor() {}
 
   public startConnection() {
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl('https://localhost:5001/hubs/agent') // backend hub endpoint
+      .withUrl(this.apiUrl) // backend hub endpoint
       .withAutomaticReconnect()
       .build();
 
@@ -24,7 +24,7 @@ export class SignalrService {
   }
 
   public addDeviceUpdateListener() {
-    this.hubConnection.on('ScanResult', (data: any) => {
+    this.hubConnection.on('Recievec Scan Update', (data: any) => {
       this.deviceUpdates$.next(data);
     });
   }

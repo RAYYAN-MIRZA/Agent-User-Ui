@@ -15,13 +15,11 @@ export class Dashboard implements OnInit {
   ngOnInit(): void {
     this.signalRService.startConnection();
     this.signalRService.addDeviceUpdateListener();
-    debugger
-    this.signalRService.deviceUpdates$.subscribe((payload) => {
-      if (payload && payload.scan_result) {
-        this.devices = payload.scan_result.devices;
-        debugger
-        // can also update charts/cards here
-      }
-    });
+    this.signalRService.listenTriggerScan();
+  }
+  hello():void{
+    let inp ='Hellow'
+    this.signalRService.sayhellotoBackend(inp);
+
   }
 }

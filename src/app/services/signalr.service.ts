@@ -14,7 +14,13 @@ export class SignalRService {
 
   public startConnection() {
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(this.apiUrl) // backend hub endpoint
+      .withUrl(this.apiUrl, { 
+      // Add the http/https configuration here
+      skipNegotiation: true, // You may need this for certain deployment scenarios, 
+      transport: signalR.HttpTransportType.WebSockets, // Force WebSockets for faster debugging
+      // The crucial part for CORS:
+      withCredentials: true // <--- ADD THIS
+      })
       .withAutomaticReconnect()
       .build();
 
@@ -24,14 +30,37 @@ export class SignalRService {
   }
 
   public addDeviceUpdateListener() {
-    this.hubConnection.on('Recievec Scan Update', (data: any) => {
-      this.deviceUpdates$.next(data);
+    this.hubConnection.on("Receive Scan Update", (data: any) => {      
+      console.log('backedn said->',data)
     });
   }
+
+   public sayhellotoBackend(arg: any): Promise<any> {
+  // Use 'return' to allow the calling component to handle the Promise (good practice)
+  return this.hubConnection.invoke("SendScanResult", arg)
+    .then((result) => {
+      // The 'result' is the value returned by the C# SendScanResult method
+      console.log('Backend successfully invoked. Server returned:', result);
+      return result; // Return the result for further chaining
+    })
+    .catch((err) => {
+      // Handle any exceptions or errors from the server-side method
+      console.error('Error invoking SendScanResult on the backend:', err);
+      throw err; // Re-throw the error
+    });
+}
 
   public stopConnection() {
     if (this.hubConnection) {
       this.hubConnection.stop();
     }
   }
+
+  
+  public listenTriggerScan() {
+    this.hubConnection.on("TriggerScan", (data: any) => {      
+      console.log('backedn said->',data)
+    });
+  }
+
 }
